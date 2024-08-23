@@ -1,0 +1,97 @@
+<!-- Home -->
+
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<style>
+    h2 {
+        text-align: center;
+        font-size: 2rem; /* Ajuste o tamanho do texto se necessário */
+    }
+
+    .crm-icon {
+        font-size: 2rem; /* Ajuste o tamanho do ícone para combinar com o tamanho do texto */
+        margin-right: 10px; /* Espaçamento entre o ícone e o texto */
+    }
+
+
+    .table th, .table td {
+        font-size: 0.85rem; /* Ajuste o tamanho da fonte das células da tabela */
+    }
+
+    .table thead th {
+        font-size: 0.90rem; /* Ajuste o tamanho da fonte dos cabeçalhos da tabela */
+    }
+    .card{
+        background-color: black;
+    }
+</style>
+
+<br><br><br>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-body">
+            <h2 class="mb-4">
+                <i class="bi bi-house-door crm-icon"></i> CRM
+            </h2>
+            <form method="GET" class="mb-4">
+                <div class="row justify-content-center">
+                    <div class="col-md-4 mb-3">
+                        <input type="text" name="nome_cliente" class="form-control" placeholder="Filtrar por Nome"
+                            value="{{ request.GET.nome_cliente }}">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <input type="text" name="cpf" class="form-control" placeholder="Filtrar por CPF"
+                            value="{{ request.GET.cpf }}">
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <button type="submit" class="btn btn-primary">Filtrar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="table-responsive mt-4">
+        <table class="table table-bordered table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Nome Cliente</th>
+                    <th>Cidade</th>
+                    <th>Estado</th>
+                    <th>CPF/CNPJ</th>
+                    <th>Valor</th>
+                    <th>Saldo a Receber</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in page_obj %}
+                <tr>
+                    <td>{{ item.Nome_Cliente }}</td>
+                    <td>{{ item.Cidade }}</td>
+                    <td>{{ item.Estado }}</td>
+                    <td>{{ item.CPF }}</td>
+                    <td>{{ item.Valor }}</td>
+                    <td>{{ item.Saldo_a_Receber }}</td>
+                    <td>{{ item.Status }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8">Nenhum dado encontrado</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Inclui o template de paginação -->
+        {% include '_pagination.html' with page_obj=page_obj %}
+    </div>
+</div>
+
+{% endblock %}
