@@ -1,8 +1,8 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import PedidoViewSet, PedidoVendaViewSet
-from .views import pedidos_por_cliente, pedidos_necessitam_contato_view, marcar_contato_realizado, detalhar_contato
+from .views import PedidoViewSet, PedidoVendaViewSet,pedidos_por_cliente, pedidos_necessitam_contato_view, marcar_contato_realizado, detalhar_contato
 from core import views
+from .views import dashboard
 
 router = DefaultRouter()
 router.register(r'pedidos', PedidoViewSet)
@@ -16,4 +16,5 @@ urlpatterns = [
     path('marcar-contato-realizado/<int:pedido_id>/', marcar_contato_realizado, name='marcar_contato_realizado'),
     path('detalhar_contato/<int:pedido_id>/', views.detalhar_contato, name='detalhar_contato'),
     path('detalhar_cliente/', detalhar_contato, name='detalhes_cliente'),
+    path('dashboard/', dashboard, name='dashboard'),
 ]

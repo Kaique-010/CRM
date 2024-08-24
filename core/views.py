@@ -1,4 +1,5 @@
 from datetime import date, timedelta
+import json
 from django.http import Http404
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.postgres.aggregates import ArrayAgg
@@ -189,40 +190,66 @@ def pedidos_necessitam_contato_view(request):
     dias_para_contato = 7  
     data_limite = hoje - timedelta(days=dias_para_contato)
     
+    # Captura os filtros da requisição GET
+    filtro_vendedor = request.GET.get('vendedor')
+    filtro_pedido = request.GET.get('pedido_id')
+    filtro_cliente = request.GET.get('cliente')
+
+    # Ajusta a consulta SQL com base nos filtros
     query = """
         WITH UltimosPedidos AS (
             SELECT
                 p.pedi_nume,
-                e.enti_nome,
+                e.enti_nome AS cliente,
                 p.pedi_data,
                 p.notas_contato,
+                v.enti_nome AS vendedor,
                 ROW_NUMBER() OVER (PARTITION BY e.enti_nome ORDER BY p.pedi_data DESC) AS rn
             FROM pedidosvenda p
             LEFT JOIN entidades e ON p.pedi_forn = e.enti_clie AND p.pedi_empr = e.enti_empr
+            LEFT JOIN entidades v ON p.pedi_vend = v.enti_clie AND p.pedi_empr = v.enti_empr
         )
         SELECT
             pedi_nume,
-            enti_nome,
+            cliente,
             pedi_data,
-            notas_contato
+            notas_contato,
+            vendedor
         FROM UltimosPedidos
         WHERE rn = 1
         AND pedi_data <= %s
-        ORDER BY pedi_data ASC;
     """
-    
+
+    # Lista de parâmetros para a consulta
     params = [data_limite]
+
+    # Aplica os filtros opcionais
+    if filtro_vendedor:
+        query += " AND vendedor = %s"
+        params.append(filtro_vendedor)
+    if filtro_pedido:
+        query += " AND pedi_nume = %s"
+        params.append(filtro_pedido)
+    if filtro_cliente:
+        query += " AND cliente = %s"
+        params.append(filtro_cliente)
+
+    query += " ORDER BY pedi_data ASC;"
 
     with connection.cursor() as cursor:
         cursor.execute(query, params)
         pedidos_necessitam_contato = dictfetchall(cursor)
 
+    # Paginação
     paginator = Paginator(pedidos_necessitam_contato, 10)
-    page_number = request.GET.get('page', 1)
+    page_number = request.GET.get('page',1)
     page_obj = paginator.get_page(page_number)
 
     context = {
         'pedidos_necessitam_contato': page_obj,
+        'filtro_vendedor': filtro_vendedor,
+        'filtro_pedido': filtro_pedido,
+        'filtro_cliente': filtro_cliente,
     }
 
     return render(request, 'pedidos_necessitam_contato.html', context)
@@ -327,3 +354,84 @@ def detalhar_cliente(request, pedido_id):
     }
 
     return render(request, 'detalhar_cliente.html', context)
+
+
+def dictfetchall(cursor):
+    """Converte todas as linhas do cursor em um dicionário."""
+    columns = [col[0] for col in cursor.description]
+    return [dict(zip(columns, row)) for row in cursor.fetchall()]
+
+def dashboard(request):
+    vendedor = request.GET.get('vendedor', '')
+    data_inicio = request.GET.get('data_inicio', '')
+    data_fim = request.GET.get('data_fim', '')
+
+    # Obter lista de vendedores
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT DISTINCT e1.enti_clie, e1.enti_nome
+            FROM pedidosvenda p
+            LEFT JOIN entidades e1 ON p.pedi_vend = e1.enti_clie AND p.pedi_empr = e1.enti_empr
+            WHERE p.pedi_canc = false
+            ORDER BY e1.enti_nome ASC;
+        """)
+        vendedores = cursor.fetchall()
+        vendedores_list = [{'id': vendedor[0], 'nome': vendedor[1]} for vendedor in vendedores]
+
+    # Consulta principal
+    query = """
+        SELECT 
+            MAX(p.pedi_vend) AS "COD VENDEDOR",
+            MAX(e1.enti_nome) AS "Nome Vendedor",
+            COUNT(DISTINCT i.iped_pedi) AS "Total Pedidos",
+            SUM(i.iped_tota) AS "Total Valor dos Pedidos"
+        FROM 
+            itenspedidovenda i
+        LEFT JOIN 
+            pedidosvenda p ON i.iped_pedi = p.pedi_nume AND i.iped_empr = p.pedi_empr AND i.iped_fili = p.pedi_fili
+        LEFT JOIN 
+            entidades e1 ON p.pedi_vend = e1.enti_clie AND p.pedi_empr = e1.enti_empr
+        WHERE 
+            p.pedi_canc = false
+    """
+
+    params = []
+    if vendedor:
+        query += " AND e1.enti_clie = %s"
+        params.append(vendedor)
+    
+    if data_inicio:
+        query += " AND i.iped_data >= %s"
+        params.append(data_inicio)
+
+    if data_fim:
+        query += " AND i.iped_data <= %s"
+        params.append(data_fim)
+    
+    query += """
+        GROUP BY 
+            p.pedi_vend, e1.enti_nome
+        ORDER BY 
+            e1.enti_nome ASC;
+    """
+
+    with connection.cursor() as cursor:
+        cursor.execute(query, params)
+        data = dictfetchall(cursor)
+
+    # Prepare data for the chart
+    labels = [item['Nome Vendedor'] for item in data]
+    total_pedidos = [float(item['Total Pedidos']) for item in data]
+    total_valor_pedido = [float(item['Total Valor dos Pedidos']) for item in data]
+
+    context = {
+        'labels': json.dumps(labels),
+        'total_pedidos': json.dumps(total_pedidos),
+        'total_valor_pedido': json.dumps(total_valor_pedido),
+        'vendedor': vendedor,
+        'data_inicio': data_inicio,
+        'data_fim': data_fim,
+        'vendedores': vendedores_list
+    }
+
+    return render(request, 'dashboard.html', context)
