@@ -17,4 +17,6 @@ urlpatterns = [
     path('detalhar_contato/<int:pedido_id>/', views.detalhar_contato, name='detalhar_contato'),
     path('detalhar_cliente/', detalhar_contato, name='detalhes_cliente'),
     path('dashboard/', dashboard, name='dashboard'),
+    
+    
 ]

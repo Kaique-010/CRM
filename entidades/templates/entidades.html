@@ -9,21 +9,21 @@
 <style>
     h2 {
         text-align: center;
-        font-size: 2rem; /* Ajuste o tamanho do texto se necessário */
+        font-size: 2rem; /* tamanho do texto */
     }
 
     .crm-icon {
-        font-size: 2rem; /* Ajuste o tamanho do ícone para combinar com o tamanho do texto */
+        font-size: 2rem; /*tamanho do ícone para combinar com o tamanho do texto */
         margin-right: 10px; /* Espaçamento entre o ícone e o texto */
     }
 
 
     .table th, .table td {
-        font-size: 0.85rem; /* Ajuste o tamanho da fonte das células da tabela */
+        font-size: 0.85rem; /*tamanho da fonte das células da tabela */
     }
 
     .table thead th {
-        font-size: 0.90rem; /* Ajuste o tamanho da fonte dos cabeçalhos da tabela */
+        font-size: 0.90rem; /*tamanho da fonte dos cabeçalhos da tabela */
     }
     .card{
         background-color: black;
@@ -89,6 +89,9 @@
                 </tbody>
             </table>
         </div>
+    </div>
+   
+
         {% if page_obj.has_other_pages %}
         <nav>
             <ul class="pagination justify-content-center">
@@ -141,6 +144,7 @@
         {% else %}
             <p>Não há entidades para exibir.</p>
         {% endif %}
+        <a href="{% url 'exportar_csv' %}" class="btn btn-success mb-2">Exportar para Excel</a>
     </main>
 
     <footer>

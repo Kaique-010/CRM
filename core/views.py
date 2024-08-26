@@ -1,6 +1,7 @@
 from datetime import date, timedelta
 import json
-from django.http import Http404
+import csv
+from django.http import Http404, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.postgres.aggregates import ArrayAgg
 from rest_framework import viewsets
@@ -362,6 +363,7 @@ def dictfetchall(cursor):
     return [dict(zip(columns, row)) for row in cursor.fetchall()]
 
 def dashboard(request):
+
     vendedor = request.GET.get('vendedor', '')
     data_inicio = request.GET.get('data_inicio', '')
     data_fim = request.GET.get('data_fim', '')
@@ -435,3 +437,5 @@ def dashboard(request):
     }
 
     return render(request, 'dashboard.html', context)
+
+

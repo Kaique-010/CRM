@@ -1,3 +1,5 @@
+from django.http import HttpResponse
+import csv
 from django.shortcuts import render
 from django.db import connection  
 from core.models import Entidades
@@ -59,7 +61,7 @@ def entidades_view(request):
         cursor.execute(query, params)
         entidades = dictfetchall(cursor)
 
-    paginator = Paginator(entidades, 10)  # 20 entidades por página
+    paginator = Paginator(entidades, 10) 
     page_obj = paginator.get_page(page_number)
 
     context = {
@@ -69,3 +71,22 @@ def entidades_view(request):
         'id_cliente': id_cliente,
     }
     return render(request, 'entidades.html', context)
+
+
+def exportar_csv(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="export.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['ID Cliente', 'Nome', 'CPF', 'CNPJ', 'Cidade', 'Estado', 'Telefone', 'Celular', 'Email', 'Email da Empresa'])
+
+    
+    empresa_id = 1  
+    entidades = Entidades.objects.filter(enti_empr=empresa_id).values_list(
+        'enti_clie', 'enti_nome', 'enti_cpf', 'enti_cnpj', 'enti_cida', 'enti_esta', 'enti_fone', 'enti_celu', 'enti_emai', 'enti_emai_empr'
+    )
+
+    for entidade in entidades:
+        writer.writerow(entidade)
+
+    return response

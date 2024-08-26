@@ -86,6 +86,7 @@
             color: #1e90ff;
             /* Cor personalizada para o ícone de contato */
         }
+
         .bi-graph-up {
             color: #3b7556;
             /* Cor personalizada para o ícone de contato */
@@ -104,7 +105,7 @@
             <div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="offcanvasDarkNavbar"
                 aria-labelledby="offcanvasDarkNavbarLabel">
                 <div class="offcanvas-header">
-                    <h5 class="offcanvas-title" id="offcanvasDarkNavbarLabel">CRM</h5>
+                    <h5 class="offcanvas-title" id="offcanvasDarkNavbarLabel">Mobile</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"
                         aria-label="Close"></button>
                 </div>
@@ -113,11 +114,6 @@
                         <li class="nav-item">
                             <a class="nav-link active" aria-current="page" href="{% url 'home' %}">
                                 <i class="bi bi-house fs-3"></i> Home
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="{% url 'pedidos_por_cliente' %}">
-                                <i class="bi bi-patch-check fs-3"></i> Pedidos
                             </a>
                         </li>
                         <li class="nav-item">
@@ -133,6 +129,16 @@
                         <li class="nav-item">
                             <a class="nav-link active" href="/dashboard/">
                                 <i class="bi bi-graph-up fs-3"></i> Métricas
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="{% url 'pedidos_por_cliente' %}">
+                                <i class="bi bi-patch-check fs-3"></i> Pedidos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="{% url 'produtos_lista.html' %}">
+                                <i class="bi bi-boxes fs-3"></i> Produtos
                             </a>
                         </li>
                     </ul>
