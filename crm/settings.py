@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'django_bootstrap5',
     'entidades',
     'produtos',
+    'OS',
+    'licencas',
     ]
 
 MIDDLEWARE = [

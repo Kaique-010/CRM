@@ -1,0 +1,12 @@
+<!-- licencas/lista.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<br><br><br>
+<h2>Licenças</h2>
+<ul>
+    {% for licenca in licencas %}
+        <li>{{ licenca.lice_nome }} - {{ licenca.lice_emai }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}

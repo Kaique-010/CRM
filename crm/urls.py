@@ -1,10 +1,12 @@
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+from OS.views import OSViewSet, ordem_de_servico
 from core import views
 from core.views import PedidoViewSet, PedidoVendaViewSet, pedidos_por_cliente, pedidos_necessitam_contato_view, marcar_contato_realizado, dashboard
 from entidades.views import EntidadesViewSet, entidades_view, exportar_csv
 from produtos.views import ProdutosViewSet, produtos_view
+from licencas.views import listar_licencas
 
 router_pedidos = DefaultRouter()
 router_pedidos.register(r'pedidos', PedidoViewSet)
@@ -15,6 +17,9 @@ router_entidades.register(r'entidades', EntidadesViewSet)
 
 router_produtos = DefaultRouter()
 router_produtos.register(r'produtos', ProdutosViewSet)
+
+router = DefaultRouter()
+router.register(r'ordens-servico', OSViewSet)
 
 urlpatterns = [
     path('', views.home, name='home'),
@@ -31,5 +36,8 @@ urlpatterns = [
     path('dashboard/', dashboard, name='dashboard'),
     path('exportar-csv/', exportar_csv, name='exportar_csv'),
     path('produtos/', include('produtos.urls')),
+    path('ordem-de-servico/', include('OS.urls')),
+    path('os/', ordem_de_servico, name='os.html'),
+    path('licencas/', listar_licencas, name='listar_licencas'),
     
 ]
