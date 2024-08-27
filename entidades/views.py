@@ -47,7 +47,7 @@ def entidades_view(request):
         WHERE enti_empr = %s
     """
 
-    params = [1]  # Empresa fixa para filtragem
+    params = [1]
 
     if nome:
         query += " AND enti_nome LIKE %s"
